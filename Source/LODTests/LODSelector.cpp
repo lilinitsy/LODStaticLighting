@@ -34,24 +34,3 @@ void ALODSelector::Tick(float DeltaTime)
 
 	num_ticks++;
 }
-
-
-void ALODSelector::get_lod_object_data()
-{
-	FStaticMeshRenderData *static_mesh_render_data = lod_object->GetRenderData();
-
-	static_mesh_render_data->CurrentFirstLODIdx = (static_mesh_render_data->CurrentFirstLODIdx + 1) % NUM_LODS;
-	int32_t lightmap_coordinate_index = lod_object->GetLightMapCoordinateIndex();
-	int32_t lightmap_resolution = lod_object->GetLightMapResolution();
-	float lightmap_uv_density = lod_object->GetLightmapUVDensity();
-	bool lods_share_static_lighting = static_mesh_render_data->bLODsShareStaticLighting;
-
-	/*UE_LOG(LogTemp Log, TEXT("Current LOD: %d\n"), static_mesh_render_data->CurrentFirstLODIdx);
-	UE_LOG(LogTemp, Log, TEXT("\tlightmap coordinate index: %d\n"), lightmap_coordinate_index);
-	UE_LOG(LogTemp, Log, TEXT("\tlightmap resolution: %d\n"), lightmap_resolution);
-	UE_LOG(LogTemp, Log, TEXT("\tlightmap uv density: %f\n"), lightmap_uv_density);
-	UE_LOG(LogTemp, Log, TEXT("\tlods share static lighting: %d\n"), lods_share_static_lighting);
-	*/
-
-
-}

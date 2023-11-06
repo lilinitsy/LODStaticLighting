@@ -12,9 +12,7 @@ class LODTESTS_API ALODSelectorEccentricity : public AActor
 	GENERATED_BODY()
 	
 public:	
-	TArray<AActor*> relevant_actors;
-	
-	
+	TArray<UStaticMesh*> relevant_static_meshes;
 	size_t num_ticks = 0;
 
 

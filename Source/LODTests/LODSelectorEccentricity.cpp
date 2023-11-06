@@ -18,7 +18,7 @@ void ALODSelectorEccentricity::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
+} 
 
 // Called every frame
 void ALODSelectorEccentricity::Tick(float DeltaTime)
@@ -27,7 +27,16 @@ void ALODSelectorEccentricity::Tick(float DeltaTime)
 
 	if(num_ticks == 300)
 	{
-		relevant_actors = get_static_mesh_actors(GetWorld());
+		relevant_static_meshes = get_static_mesh_actors(GetWorld());
+	}
+
+	if(relevant_static_meshes.Num() > 0 && num_ticks > 300 && num_ticks % 120 == 0)
+	{
+		for(UStaticMesh *static_mesh : relevant_static_meshes)
+		{
+			increment_lod(static_mesh);	
+		}
+
 	}
 
 	num_ticks++;

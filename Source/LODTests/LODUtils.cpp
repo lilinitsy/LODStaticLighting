@@ -6,13 +6,19 @@
 void increment_lod(UStaticMesh *lod_object)
 {
 	FStaticMeshRenderData *static_mesh_render_data = lod_object->GetRenderData();
-	static_mesh_render_data->CurrentFirstLODIdx = (static_mesh_render_data->CurrentFirstLODIdx + 1) % NUM_LODS;
+	const int32_t num_lods_available = lod_object->GetNumLODs();
+
+	
+	static_mesh_render_data->CurrentFirstLODIdx = num_lods_available >= (int) NUM_LODS ?
+		(static_mesh_render_data->CurrentFirstLODIdx + 1) % NUM_LODS :
+		(static_mesh_render_data->CurrentFirstLODIdx + 1) % num_lods_available;
+
 }
 
 
-void print_lod_info(UStaticMesh *lod_object)
+void print_lod_info(const UStaticMesh *lod_object)
 {
-	FStaticMeshRenderData *static_mesh_render_data = lod_object->GetRenderData();
+	const FStaticMeshRenderData *static_mesh_render_data = lod_object->GetRenderData();
 	int32_t lightmap_coordinate_index = lod_object->GetLightMapCoordinateIndex();
 	int32_t lightmap_resolution = lod_object->GetLightMapResolution();
 	float lightmap_uv_density = lod_object->GetLightmapUVDensity();
@@ -26,10 +32,12 @@ void print_lod_info(UStaticMesh *lod_object)
 }
 
 
-TArray<AActor*> get_static_mesh_actors(UWorld *world)
+TArray<UStaticMesh*> get_static_mesh_actors(UWorld *world)
 {
-	TArray<AActor*> relevant_actors;
+	TArray<UStaticMesh*> relevant_static_mesh_components;
 	ULevel *level = world->GetLevel(0);
+	UE_LOG(LogTemp, Log, TEXT("Number of actors in this scene: %u\n"), level->Actors.Num());
+
 	for(AActor* actor : level->Actors)
 	{
 		// Without this check, it'll segfault... either some actors don't have names, or some are nullptr's? 
@@ -37,19 +45,26 @@ TArray<AActor*> get_static_mesh_actors(UWorld *world)
 		{
 			FString actor_name = actor->GetActorLabel(false);
 
-			// Check for spheres, but not sphere reflection captures
-			if(actor_name.Contains(TEXT("sphere")) && !actor_name.Contains(TEXT("reflection")) && !actor_name.Contains(TEXT("sky")))
+			if(!actor_name.Contains(TEXT("Pawn")))
 			{
-				relevant_actors.Add(actor);
-
 				// Force all their static mesh components to be moveable
 				TArray<UStaticMeshComponent*> static_mesh_components; // there should only be 1, but this returns an array
 				actor->GetComponents<UStaticMeshComponent>(static_mesh_components);
-				UStaticMeshComponent *component = static_mesh_components[0];
-				component->SetMobility(EComponentMobility::Movable);
+
+				// Check that there is a static mesh
+				for(UStaticMeshComponent *static_mesh_component : static_mesh_components)
+				{
+					// Add the first element only
+					UStaticMesh *static_mesh = static_mesh_component->GetStaticMesh();
+					relevant_static_mesh_components.Add(static_mesh);
+					FString outstr = actor->GetActorLabel(false);
+					UE_LOG(LogTemp, Log, TEXT("Actor name with static mesh: %s\n"), *outstr);
+
+				}
 			}
+
 		}
 	}
 
-	return relevant_actors;
+	return relevant_static_mesh_components;
 }

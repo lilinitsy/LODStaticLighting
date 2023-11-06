@@ -34,8 +34,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void get_lod_object_data();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
