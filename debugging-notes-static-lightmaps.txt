@@ -1,0 +1,17 @@
+void UStaticMeshComponent::ApplyComponentInstanceData(FStaticMeshComponentInstanceData* StaticMeshInstanceData)
+	has this line: LODData[i].MapBuildDataId = StaticMeshInstanceData->CachedStaticLighting[i];
+		need to figure out a way to modify this (maybe have to make another version of ApplyComponentInstanceData?)
+		to always use LOD0's cached static lighting 
+
+	CachedStaticLighting is made in the FStaticMeshComponentInstanceData
+		FStaticMeshComponentInstanceData::FStaticMeshComponentInstanceData(const UStaticMeshComponent* SourceComponent)
+		: FPrimitiveComponentInstanceData(SourceComponent)
+		, StaticMesh(SourceComponent->GetStaticMesh())
+		{
+			for (const FStaticMeshComponentLODInfo& LODDataEntry : SourceComponent->LODData)
+			{
+				CachedStaticLighting.Add(LODDataEntry.MapBuildDataId);
+			}
+		....
+
+		This is probably called from baking or something. so I dunno that I want to modify this.

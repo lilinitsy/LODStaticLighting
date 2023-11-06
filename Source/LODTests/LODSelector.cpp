@@ -26,7 +26,7 @@ void ALODSelector::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(num_ticks % 180 == 0)
+	if(num_ticks % 120 == 0)
 	{
 		increment_lod(lod_object);
 		print_lod_info(lod_object);
