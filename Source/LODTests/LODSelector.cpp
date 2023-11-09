@@ -19,6 +19,7 @@ void ALODSelector::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	reset_lod_level_to_zero(lod_object);
 }
 
 // Called every frame
@@ -30,6 +31,11 @@ void ALODSelector::Tick(float DeltaTime)
 	{
 		increment_lod(lod_object);
 		print_lod_info(lod_object);
+
+		if(TAKE_SCREENSHOTS)
+		{
+			take_screenshot(modelname, details, lod_object->GetRenderData()->CurrentFirstLODIdx);
+		}
 	}
 
 	num_ticks++;

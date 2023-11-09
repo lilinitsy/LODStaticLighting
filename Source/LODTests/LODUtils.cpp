@@ -7,6 +7,14 @@
 #include "StaticMeshComponentLODInfo.h"
 
 
+FStaticMeshComponentInstanceData *get_static_mesh_component_instance_data(UStaticMeshComponent *lod_object)
+{
+	TStructOnScope<FActorComponentInstanceData> component_instance_data = lod_object->GetComponentInstanceData();
+	FStaticMeshComponentInstanceData *component_instance_data_cast = reinterpret_cast<FStaticMeshComponentInstanceData*>(component_instance_data.Get());
+	return component_instance_data_cast;
+}
+
+
 void increment_lod(UStaticMesh *lod_object)
 {
 	FStaticMeshRenderData *static_mesh_render_data = lod_object->GetRenderData();
@@ -16,64 +24,34 @@ void increment_lod(UStaticMesh *lod_object)
 	static_mesh_render_data->CurrentFirstLODIdx = num_lods_available >= (int32_t) NUM_LODS ?
 		(static_mesh_render_data->CurrentFirstLODIdx + 1) % NUM_LODS :
 		(static_mesh_render_data->CurrentFirstLODIdx + 1) % num_lods_available;
-
-
 }
 
 void increment_lod(UStaticMeshComponent *lod_object)//, TStructOnScope<FActorComponentInstanceData> &component_instance_data)
 {
-	TStructOnScope<FActorComponentInstanceData> component_instance_data = lod_object->GetComponentInstanceData();
-
-	FStaticMeshComponentInstanceData *component_instance_data_cast = reinterpret_cast<FStaticMeshComponentInstanceData*>(component_instance_data.Get());
-	
-	// These two below don't work, but might be safer?
-	//FStaticMeshComponentInstanceData *cast_component_instance_data = component_instance_data.Cast();
-	//FStaticMeshComponentInstanceData *cast_component_instance_data = TStructOnScope<FActorComponentInstanceData>::Cast<FStaticMeshComponentInstanceData*>(&component_instance_data);
-	assert(component_instance_data_cast != nullptr);
-	//lod_object->ApplyComponentInstanceData(component_instance_data_cast);
-	int32_t num_lightmaps = component_instance_data_cast->CachedStaticLighting.Num();
 
 
-	for(int32_t i = 0; i < num_lightmaps; i++)
-	{
-		lod_object->LODData[i].MapBuildDataId = component_instance_data_cast->CachedStaticLighting[0];
-	}
-
-	// Don't want to SetLODDataCount, because that will remove / add LOD's and then make them inaccessible
-	// while still using the lightmap assigned for each lod.
-	//lod_object->SetLODDataCount(1, 1);
-	
-
+	// UStaticMeshComponent::ForcedLodModel: If 0, auto-select LOD level. if >0, force to (ForcedLodModel-1)
+	// so add 1 at the end
 	const int32_t forced_lod_model = lod_object->ForcedLodModel;
-	int32_t next_lod_model = (forced_lod_model + 1) % NUM_LODS;
+	int32_t next_lod_model = ((forced_lod_model + 1) % NUM_LODS) + 1; 
 
 	lod_object->SetForcedLodModel(next_lod_model);
-
-	
 }
-
-
-
 
 
 void print_lod_info(const UStaticMesh *lod_object)
 {
 	const FStaticMeshRenderData *static_mesh_render_data = lod_object->GetRenderData();
 	int32_t lightmap_coordinate_index = lod_object->GetLightMapCoordinateIndex();
-	//FName lightmap_coordinate_index_name = lod_object->GetLightMapCoordinateIndexName();
-	// ^ lightmap_coordinate_index_name is just printing "LightMapCoordinateIndex"
 	int32_t lightmap_resolution = lod_object->GetLightMapResolution();
 	float lightmap_uv_density = lod_object->GetLightmapUVDensity();
 	int32_t lightmap_uv_version = lod_object->GetLightmapUVVersion();
 	bool lods_share_static_lighting = static_mesh_render_data->bLODsShareStaticLighting;
 	bool can_lods_share_static_lighting = lod_object->CanLODsShareStaticLighting();
 
-	//FString lightmap_coordinate_index_name_string;
-	//lightmap_coordinate_index_name.ToString(lightmap_coordinate_index_name_string);
 
 	UE_LOG(LogTemp, Log, TEXT("Current first lod idx: %d\n"), static_mesh_render_data->CurrentFirstLODIdx);
 	UE_LOG(LogTemp, Log, TEXT("\tlightmap coordinate index: %d\n"), lightmap_coordinate_index);
-	//UE_LOG(LogTemp, Log, TEXT("\tlightmap coordinate index name: %s\n"), *lightmap_coordinate_index_name_string);
 	UE_LOG(LogTemp, Log, TEXT("\tlightmap resolution: %d\n"), lightmap_resolution);
 	UE_LOG(LogTemp, Log, TEXT("\tlightmap uv density: %f\n"), lightmap_uv_density);
 	UE_LOG(LogTemp, Log, TEXT("\tlightmap uv version: %d\n"), lightmap_uv_version);
@@ -84,11 +62,31 @@ void print_lod_info(const UStaticMesh *lod_object)
 
 void print_lod_info(const UStaticMeshComponent *lod_object)
 {
-	const int32_t forced_lod_model = lod_object->ForcedLodModel;
+	const int32_t forced_lod_model = lod_object->ForcedLodModel - 1;
 	UE_LOG(LogTemp, Log, TEXT("Current first lod idx: %d\n"), forced_lod_model);
 }
 
 
+void reset_lod_level_to_zero(UStaticMesh *lod_object)
+{
+	FStaticMeshRenderData *static_mesh_render_data = lod_object->GetRenderData();
+	static_mesh_render_data->CurrentFirstLODIdx = 0;
+}
+
+// UStaticMeshComponent::ForcedLodModel: If 0, auto-select LOD level. if >0, force to (ForcedLodModel-1).
+void reset_lod_level_to_zero(UStaticMeshComponent *lod_object)
+{
+	FStaticMeshComponentInstanceData* component_instance_data_cast = get_static_mesh_component_instance_data(lod_object);
+	assert(component_instance_data_cast != nullptr);
+	int32_t num_lightmaps = component_instance_data_cast->CachedStaticLighting.Num();
+
+	for(int32_t i = 0; i < num_lightmaps; i++)
+	{
+		lod_object->LODData[i].MapBuildDataId = component_instance_data_cast->CachedStaticLighting[0];
+	}
+
+	lod_object->SetForcedLodModel(1);
+}
 
 TArray<UStaticMesh*> get_static_mesh_actors(UWorld *world)
 {
@@ -128,9 +126,6 @@ TArray<UStaticMesh*> get_static_mesh_actors(UWorld *world)
 }
 
 
-
-
-
 TArray<UStaticMeshComponent*> get_static_mesh_components(UWorld *world)
 {
 	TArray<UStaticMeshComponent*> relevant_static_mesh_components;
@@ -153,7 +148,7 @@ TArray<UStaticMeshComponent*> get_static_mesh_components(UWorld *world)
 				// Check that there is a static mesh
 				for(UStaticMeshComponent *static_mesh_component : static_mesh_components)
 				{
-					// Add the first element only
+					reset_lod_level_to_zero(static_mesh_component);
 					relevant_static_mesh_components.Add(static_mesh_component);
 
 					FString outstr = actor->GetActorLabel(false);
@@ -169,15 +164,10 @@ TArray<UStaticMeshComponent*> get_static_mesh_components(UWorld *world)
 }
 
 
-/*TArray<TStructOnScope<FActorComponentInstanceData>> get_static_mesh_components_instance_data(TArray<UStaticMeshComponent*> relevant_static_mesh_components)
+void take_screenshot(const FString modelname, const FString details, const int32_t lod_idx)
 {
-	TArray<TStructOnScope<FActorComponentInstanceData>> relevant_static_mesh_components_instance_data;
-
-	for(UStaticMeshComponent *static_mesh_component : relevant_static_mesh_components)
-	{
-		TStructOnScope<FActorComponentInstanceData> component_instance_data = static_mesh_component->GetComponentInstanceData();
-		relevant_static_mesh_components_instance_data.Add(component_instance_data);
-	}
-
-	return relevant_static_mesh_components_instance_data;
-}*/
+	const FString ImageDirectory = FString::Printf(TEXT("%s/Screenshots/%s/"), *FPaths::ProjectDir(), *modelname);
+	const FString filename = modelname + "_" + details + "_LOD_" + FString::FromInt(lod_idx);
+	
+	FScreenshotRequest::RequestScreenshot(ImageDirectory + filename, false, false);
+}

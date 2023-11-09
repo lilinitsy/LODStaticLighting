@@ -26,17 +26,24 @@ void ALODSelectorEccentricityInstanced::Tick(float DeltaTime)
 	if(num_ticks == 300)
 	{
 		relevant_static_mesh_components = get_static_mesh_components(GetWorld());
-		//relevant_static_mesh_components_instance_data = get_static_mesh_components_instance_data(relevant_static_mesh_components);
+		
+		for(UStaticMeshComponent *static_mesh_component : relevant_static_mesh_components)
+		{
+			reset_lod_level_to_zero(static_mesh_component);
+		}
 	}
 
 	if(relevant_static_mesh_components.Num() > 0 && num_ticks > 300 && num_ticks % 120 == 0)
 	{
 		for(UStaticMeshComponent *static_mesh_component : relevant_static_mesh_components)
 		{
-			increment_lod(static_mesh_component);//, relevant_static_mesh_components_instance_data[0]);
+			increment_lod(static_mesh_component);
 			print_lod_info(static_mesh_component);
+			if(TAKE_SCREENSHOTS)
+			{
+				take_screenshot(modelname, details, static_mesh_component->ForcedLodModel);
+			}
 		}
-
 	}
 
 	num_ticks++;

@@ -15,6 +15,8 @@ public:
 	TArray<UStaticMesh*> relevant_static_meshes;
 	size_t num_ticks = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	FString modelname;
 
 	// Sets default values for this actor's properties
 	ALODSelectorEccentricity();

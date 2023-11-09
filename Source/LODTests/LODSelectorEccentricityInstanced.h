@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
+#include "r_defines.h"
+
 #include "LODSelectorEccentricityInstanced.generated.h"
 
 UCLASS()
@@ -12,6 +15,11 @@ class LODTESTS_API ALODSelectorEccentricityInstanced : public AActor
 	GENERATED_BODY()
 	
 public:	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	FString modelname;
+
+	FString details = "LOD0lightmap";
+
 	TArray<UStaticMeshComponent*> relevant_static_mesh_components;
 	TArray<TStructOnScope<FActorComponentInstanceData>> relevant_static_mesh_components_instance_data;
 

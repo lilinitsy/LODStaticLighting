@@ -26,6 +26,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Model")
 	UStaticMesh *lod_object;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	FString modelname;
+
+	FString details = "uniquelightmaps";
+
 	size_t num_ticks = 0;
 
 	// Sets default values for this actor's properties
