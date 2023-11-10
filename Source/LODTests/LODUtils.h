@@ -7,6 +7,8 @@
 
 FStaticMeshComponentInstanceData *get_static_mesh_component_instance_data(UStaticMeshComponent *lod_object);
 
+FMeshMapBuildData *get_mesh_build_data(UStaticMeshComponent *lod_object, int32_t lod_idx);
+
 void increment_lod(UStaticMesh *lod_object);
 
 void print_lod_info(const UStaticMesh *lod_object);

@@ -6,6 +6,9 @@
 
 #include "StaticMeshComponentLODInfo.h"
 
+#include "Lightmap.h"
+#include "Engine/MapBuildDataRegistry.h"
+
 
 FStaticMeshComponentInstanceData *get_static_mesh_component_instance_data(UStaticMeshComponent *lod_object)
 {
@@ -28,11 +31,9 @@ void increment_lod(UStaticMesh *lod_object)
 
 void increment_lod(UStaticMeshComponent *lod_object)//, TStructOnScope<FActorComponentInstanceData> &component_instance_data)
 {
-
-
-	// UStaticMeshComponent::ForcedLodModel: If 0, auto-select LOD level. if >0, force to (ForcedLodModel-1)
+	// UStaticMeshComponent::ForcedLodModel: If 0, auto-select LOD level. if > 0, force to (ForcedLodModel-1)
 	// so add 1 at the end
-	const int32_t forced_lod_model = lod_object->ForcedLodModel;
+	const int32_t forced_lod_model = lod_object->ForcedLodModel - 1;
 	int32_t next_lod_model = ((forced_lod_model + 1) % NUM_LODS) + 1; 
 
 	lod_object->SetForcedLodModel(next_lod_model);
@@ -67,6 +68,40 @@ void print_lod_info(const UStaticMeshComponent *lod_object)
 }
 
 
+FMeshMapBuildData *get_mesh_build_data(UStaticMeshComponent *lod_object, int32_t lod_idx)
+{
+	AActor *owner = lod_object->GetOwner();
+	FStaticMeshComponentLODInfo &lod_info = lod_object->LODData[lod_idx];
+
+	if(owner)
+	{
+		ULevel *owner_level = owner->GetLevel();
+
+		if(owner_level && owner_level->OwningWorld)
+		{
+			ULevel *active_lighting_scenario = owner_level->OwningWorld->GetActiveLightingScenario();
+			UMapBuildDataRegistry *map_build_data = nullptr;
+
+			if (active_lighting_scenario && active_lighting_scenario->MapBuildData)
+			{
+				map_build_data = active_lighting_scenario->MapBuildData;
+			}
+			else if (owner_level->MapBuildData)
+			{
+				map_build_data = owner_level->MapBuildData;
+			}
+
+			if (map_build_data)
+			{
+				return map_build_data->GetMeshBuildData(lod_info.MapBuildDataId);
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+
 void reset_lod_level_to_zero(UStaticMesh *lod_object)
 {
 	FStaticMeshRenderData *static_mesh_render_data = lod_object->GetRenderData();
@@ -78,14 +113,37 @@ void reset_lod_level_to_zero(UStaticMeshComponent *lod_object)
 {
 	FStaticMeshComponentInstanceData* component_instance_data_cast = get_static_mesh_component_instance_data(lod_object);
 	assert(component_instance_data_cast != nullptr);
-	int32_t num_lightmaps = component_instance_data_cast->CachedStaticLighting.Num();
+	//int32_t num_lightmaps = component_instance_data_cast->CachedStaticLighting.Num();
 
-	for(int32_t i = 0; i < num_lightmaps; i++)
+	FMeshMapBuildData *meshmap_build_data_at_0 = get_mesh_build_data(lod_object, 0);
+
+	int32_t num_lods = lod_object->LODData.Num();
+	UE_LOG(LogTemp, Log, TEXT("NUM LOD's: %d\n"), num_lods);
+
+	for(int32_t i = 1; i < num_lods; i++)
 	{
-		lod_object->LODData[i].MapBuildDataId = component_instance_data_cast->CachedStaticLighting[0];
+		FMeshMapBuildData *meshmap_build_data = get_mesh_build_data(lod_object, i);
+		meshmap_build_data = meshmap_build_data_at_0;
 	}
 
-	lod_object->SetForcedLodModel(1);
+	/*FStaticMeshComponentLODInfo &lod_info_at_0 = lod_object->LODData[0];
+
+
+	FMeshMapBuildData *meshmap_build_data = get_mesh_build_data(lod_object);
+
+	const FMeshMapBuildData *meshmap_build_data_0 = lod_object->GetMeshMapBuildData(lod_info_at_0, true);
+	FLightMap2D *lightmap_at_0 = meshmap_build_data_0 && meshmap_build_data_0->LightMap ? meshmap_build_data_0->LightMap->GetLightMap2D() : nullptr;
+
+	for(int32_t i = 1; i < num_lightmaps; i++)
+	{
+		//lod_object->LODData[i].MapBuildDataId = component_instance_data_cast->CachedStaticLighting[0];		
+		FStaticMeshComponentLODInfo &lod_info = lod_object->LODData[i];
+		const FMeshMapBuildData *meshmap_build_data = lod_object->GetMeshMapBuildData(lod_object->LODData[i], true);
+
+
+
+
+	}*/
 }
 
 TArray<UStaticMesh*> get_static_mesh_actors(UWorld *world)
@@ -110,7 +168,6 @@ TArray<UStaticMesh*> get_static_mesh_actors(UWorld *world)
 				// Check that there is a static mesh
 				for(UStaticMeshComponent *static_mesh_component : static_mesh_components)
 				{
-					// Add the first element only
 					UStaticMesh *static_mesh = static_mesh_component->GetStaticMesh();
 					relevant_static_mesh_components.Add(static_mesh);
 					FString outstr = actor->GetActorLabel(false);
@@ -148,6 +205,7 @@ TArray<UStaticMeshComponent*> get_static_mesh_components(UWorld *world)
 				// Check that there is a static mesh
 				for(UStaticMeshComponent *static_mesh_component : static_mesh_components)
 				{
+					// Add the first element only
 					reset_lod_level_to_zero(static_mesh_component);
 					relevant_static_mesh_components.Add(static_mesh_component);
 

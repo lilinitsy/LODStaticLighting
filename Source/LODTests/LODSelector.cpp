@@ -18,8 +18,6 @@ ALODSelector::ALODSelector()
 void ALODSelector::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	reset_lod_level_to_zero(lod_object);
 }
 
 // Called every frame
