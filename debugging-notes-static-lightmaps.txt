@@ -129,7 +129,18 @@ Debugging in reset_lod_level_to-zero loop
 
 
 
-
+LogTemp: Active lighting scenario: 0000000000000000
+LogTemp: First loop (lightmap_at_0, lightmap_at_1: 000006B70A1D7300 000006B70A1D7300
+LogTemp: Active lighting scenario: 0000000000000000
+LogTemp: First loop (lightmap_at_0, lightmap_at_2: 000006B70A1D7300 000006B70A1D7300
+LogTemp: Active lighting scenario: 0000000000000000
+LogTemp: First loop (lightmap_at_0, lightmap_at_3: 000006B70A1D7300 000006B70A1D7300
+LogTemp: Active lighting scenario: 0000000000000000
+LogTemp: Second loop (lightmap_at_0, lightmap_at_1: 000006B70A1D7300 000006B70A1D7300
+LogTemp: Active lighting scenario: 0000000000000000
+LogTemp: Second loop (lightmap_at_0, lightmap_at_2: 000006B70A1D7300 000006B70A1D7300
+LogTemp: Active lighting scenario: 0000000000000000
+LogTemp: Second loop (lightmap_at_0, lightmap_at_3: 000006B70A1D7300 000006B70A1D7300
 
 
 
