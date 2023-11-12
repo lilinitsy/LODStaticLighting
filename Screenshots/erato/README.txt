@@ -9,4 +9,4 @@ erato_uniquelightmaps_LOD_i:
 Unreal has the option to enforce a "min lightmap size", which is
 	what's usually done for stuff like this because smaller
 	LOD's don't need such high lightmap resolutions.
-	Comparisons for those are in the folder "/smaller_lightmap_res"
+	Comparisons for those are in the folder "Screenshots/erato_smallerlightmaps"

@@ -15,3 +15,123 @@ void UStaticMeshComponent::ApplyComponentInstanceData(FStaticMeshComponentInstan
 		....
 
 		This is probably called from baking or something. so I dunno that I want to modify this.
+
+
+	bool FStaticMeshComponentInstanceData::ApplyVertexColorData(UStaticMeshComponent* StaticMeshComponent) const
+		has StaticMeshComponent->SetLODDataCount(VertexColorLODs.Num(), StaticMeshComponent->LODData.Num());
+			
+
+
+
+Figuring out the usage of FLightmap2D* from
+void UStaticMeshComponent::GetStreamingRenderAssetInfo(FStreamingTextureLevelContext& LevelContext, TArray<FStreamingRenderAssetPrimitiveInfo>& OutStreamingRenderAssets) const
+
+	LODIndex: 0
+	Lightmap: 
+-		Lightmap	0x0000073db20d30c0 {Textures=0x0000073db20d30e0 {0x0000073dac112a00 (Name="HQ_Lightmap1"_1), 0x0000073dac112300 (Name="LQ_Lightmap_1"_1)} ...}	FLightMap2D *
++		FLightMap	{LightGuids=Num=1, Max=1 bAllowHighQualityLightMaps=true NumRefs=1 }	FLightMap
++		Textures	0x0000073db20d30e0 {0x0000073dac112a00 (Name="HQ_Lightmap1"_1), 0x0000073dac112300 (Name="LQ_Lightmap_1"_1)}	TObjectPtr<ULightMapTexture2D>[2]
++		SkyOcclusionTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		AOMaterialMaskTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		ShadowMapTexture	nullptr	TObjectPtr<UShadowMapTexture2D>
++		VirtualTextures	0x0000073db20d3108 {nullptr, nullptr}	TObjectPtr<ULightMapVirtualTexture2D>[2]
++		ScaleVectors	0x0000073db20d3120 {{X=0.0363224745 Y=0.0112353563 Z=0.0433974266 W=4.09846497}, {X=0.662586093 Y=0.757504225 Z=0.769591153 W=0.00000000}, ...}	UE::Math::TVector4<float>[4]
++		AddVectors	0x0000073db20d3160 {{X=1.15546370 Y=0.945630372 Z=0.763967812 W=-2.75922632}, {X=-0.258864820 Y=-0.358600229 Z=-0.405540705 W=0.282094985}, ...}	UE::Math::TVector4<float>[4]
++		CoordinateScale	{X=0.49609375000000000 Y=0.99218750000000000 XY=0x0000073db20d31a0 {0.49609375000000000, 0.99218750000000000} }	UE::Math::TVector2<double>
++		CoordinateBias	{X=0.0019531250000000000 Y=0.0039062500000000000 XY=0x0000073db20d31b0 {0.0019531250000000000, 0.0039062500000000000} }	UE::Math::TVector2<double>
++		InvUniformPenumbraSize	{X=0.00000000 Y=0.00000000 Z=0.00000000 W=1.00000000}	UE::Math::TVector4<float>
++		bShadowChannelValid	0x0000073db20d31d0 {false, false, false, false}	bool[4]
+		TexelFactor: 64.885
+	LODIndex: 1
+	Lightmap:
+-		Lightmap	0x0000073db20d3c00 {Textures=0x0000073db20d3c20 {0x0000073dac112a00 (Name="HQ_Lightmap1"_1), 0x0000073dac112300 (Name="LQ_Lightmap_1"_1)} ...}	FLightMap2D *
++		FLightMap	{LightGuids=Num=1, Max=1 bAllowHighQualityLightMaps=true NumRefs=1 }	FLightMap
++		Textures	0x0000073db20d3c20 {0x0000073dac112a00 (Name="HQ_Lightmap1"_1), 0x0000073dac112300 (Name="LQ_Lightmap_1"_1)}	TObjectPtr<ULightMapTexture2D>[2]
++		SkyOcclusionTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		AOMaterialMaskTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		ShadowMapTexture	nullptr	TObjectPtr<UShadowMapTexture2D>
++		VirtualTextures	0x0000073db20d3c48 {nullptr, nullptr}	TObjectPtr<ULightMapVirtualTexture2D>[2]
++		ScaleVectors	0x0000073db20d3c60 {{X=0.0614204407 Y=0.0203921795 Z=0.0581337251 W=4.15138721}, {X=0.643572032 Y=0.772194803 Z=0.732917786 W=0.00000000}, ...}	UE::Math::TVector4<float>[4]
++		AddVectors	0x0000073db20d3ca0 {{X=1.15546453 Y=0.936473191 Z=0.749230444 W=-2.80886078}, {X=-0.264164537 Y=-0.371177673 Z=-0.369136184 W=0.282094985}, ...}	UE::Math::TVector4<float>[4]
++		CoordinateScale	{X=0.24609375000000000 Y=0.49218750000000000 XY=0x0000073db20d3ce0 {0.24609375000000000, 0.49218750000000000} }	UE::Math::TVector2<double>
++		CoordinateBias	{X=0.50195312500000000 Y=0.0039062500000000000 XY=0x0000073db20d3cf0 {0.50195312500000000, 0.0039062500000000000} }	UE::Math::TVector2<double>
++		InvUniformPenumbraSize	{X=0.00000000 Y=0.00000000 Z=0.00000000 W=1.00000000}	UE::Math::TVector4<float>
++		bShadowChannelValid	0x0000073db20d3d10 {false, false, false, false}	bool[4]
+		TexelFactor: 130.800
+
+	What seems to be different primarily is that the Textures address for LODIndex0 is 0x0000073db20d30e0 and for LODIndex1 is 0x0000073db20d3c20.
+	0x0000073db20d3c20 - 0x0000073db20d30e0 = 0xB40 = 2880 bytes
+	So maybe I want to change the FLightmap textures pointer?
+
+
+
+Debugging in reset_lod_level_to-zero loop
+	-- First will compare lightmap_at_0 to lightmap_at_i
+		- Before the assignment: lightmap_at_i = lightmap_at_0, there's this:
+
+		i	2	int
+-		lightmap_at_0	0x0000086a6f7f6f40 {Textures=0x0000086a6f7f6f60 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)} ...}	FLightMap2D * {UnrealEditor-Engine.dll!FLightMap2D}
++		[FLightMap2D]	{Textures=0x0000086a6f7f6f60 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)} ...}	UnrealEditor-Engine.dll!FLightMap2D
++		FLightMap	{LightGuids=Num=1, Max=1 bAllowHighQualityLightMaps=true NumRefs=1 }	FLightMap
++		Textures	0x0000086a6f7f6f60 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)}	TObjectPtr<ULightMapTexture2D>[2]
++		SkyOcclusionTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		AOMaterialMaskTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		ShadowMapTexture	nullptr	TObjectPtr<UShadowMapTexture2D>
++		VirtualTextures	0x0000086a6f7f6f88 {nullptr, nullptr}	TObjectPtr<ULightMapVirtualTexture2D>[2]
++		ScaleVectors	0x0000086a6f7f6fa0 {{X=0.0363224745 Y=0.0112353563 Z=0.0433974266 W=4.09846497}, {X=0.662586093 Y=0.757504225 Z=0.769591153 W=0.00000000}, ...}	UE::Math::TVector4<float>[4]
++		AddVectors	0x0000086a6f7f6fe0 {{X=1.15546370 Y=0.945630372 Z=0.763967812 W=-2.75922632}, {X=-0.258864820 Y=-0.358600229 Z=-0.405540705 W=0.282094985}, ...}	UE::Math::TVector4<float>[4]
++		CoordinateScale	{X=0.49609375000000000 Y=0.99218750000000000 XY=0x0000086a6f7f7020 {0.49609375000000000, 0.99218750000000000} }	UE::Math::TVector2<double>
++		CoordinateBias	{X=0.0019531250000000000 Y=0.0039062500000000000 XY=0x0000086a6f7f7030 {0.0019531250000000000, 0.0039062500000000000} }	UE::Math::TVector2<double>
++		InvUniformPenumbraSize	{X=0.00000000 Y=0.00000000 Z=0.00000000 W=1.00000000}	UE::Math::TVector4<float>
++		bShadowChannelValid	0x0000086a6f7f7050 {false, false, false, false}	bool[4]
+
+-		lightmap_at_i	0x0000086a6f7f6040 {Textures=0x0000086a6f7f6060 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)} ...}	FLightMap2D * {UnrealEditor-Engine.dll!FLightMap2D}
++		[FLightMap2D]	{Textures=0x0000086a6f7f6060 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)} ...}	UnrealEditor-Engine.dll!FLightMap2D
++		FLightMap	{LightGuids=Num=1, Max=1 bAllowHighQualityLightMaps=true NumRefs=1 }	FLightMap
++		Textures	0x0000086a6f7f6060 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)}	TObjectPtr<ULightMapTexture2D>[2]
++		SkyOcclusionTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		AOMaterialMaskTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		ShadowMapTexture	nullptr	TObjectPtr<UShadowMapTexture2D>
++		VirtualTextures	0x0000086a6f7f6088 {nullptr, nullptr}	TObjectPtr<ULightMapVirtualTexture2D>[2]
++		ScaleVectors	0x0000086a6f7f60a0 {{X=0.0441887379 Y=0.0138143906 Z=0.0464185476 W=4.18092012}, {X=0.645399511 Y=0.765609264 Z=0.701835990 W=0.00000000}, ...}	UE::Math::TVector4<float>[4]
++		AddVectors	0x0000086a6f7f60e0 {{X=1.15546238 Y=0.943051517 Z=0.760948181 W=-2.80742049}, {X=-0.250735492 Y=-0.364675403 Z=-0.364611298 W=0.282094985}, ...}	UE::Math::TVector4<float>[4]
++		CoordinateScale	{X=0.12109375000000000 Y=0.24218750000000000 XY=0x0000086a6f7f6120 {0.12109375000000000, 0.24218750000000000} }	UE::Math::TVector2<double>
++		CoordinateBias	{X=0.62695312500000000 Y=0.50390625000000000 XY=0x0000086a6f7f6130 {0.62695312500000000, 0.50390625000000000} }	UE::Math::TVector2<double>
++		InvUniformPenumbraSize	{X=0.00000000 Y=0.00000000 Z=0.00000000 W=1.00000000}	UE::Math::TVector4<float>
++		bShadowChannelValid	0x0000086a6f7f6150 {false, false, false, false}	bool[4]
+
+		- Addresses are different for lightmap, texture addresses for FLightmap2D are different, virtualtextures/scale/add, coordinatescaale/bias, are all different.
+		- After the assignment: lightmap-at_i = lightmap_at_0, there's:
+-		lightmap_at_i	0x0000086a6f7f6f40 {Textures=0x0000086a6f7f6f60 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)} ...}	FLightMap2D * {UnrealEditor-Engine.dll!FLightMap2D}
++		[FLightMap2D]	{Textures=0x0000086a6f7f6f60 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)} ...}	UnrealEditor-Engine.dll!FLightMap2D
++		FLightMap	{LightGuids=Num=1, Max=1 bAllowHighQualityLightMaps=true NumRefs=1 }	FLightMap
++		Textures	0x0000086a6f7f6f60 {0x0000086a64fc7000 (Name="HQ_Lightmap1"_1), 0x0000086a64fc7700 (Name="LQ_Lightmap_1"_1)}	TObjectPtr<ULightMapTexture2D>[2]
++		SkyOcclusionTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		AOMaterialMaskTexture	nullptr	TObjectPtr<ULightMapTexture2D>
++		ShadowMapTexture	nullptr	TObjectPtr<UShadowMapTexture2D>
++		VirtualTextures	0x0000086a6f7f6f88 {nullptr, nullptr}	TObjectPtr<ULightMapVirtualTexture2D>[2]
++		ScaleVectors	0x0000086a6f7f6fa0 {{X=0.0363224745 Y=0.0112353563 Z=0.0433974266 W=4.09846497}, {X=0.662586093 Y=0.757504225 Z=0.769591153 W=0.00000000}, ...}	UE::Math::TVector4<float>[4]
++		AddVectors	0x0000086a6f7f6fe0 {{X=1.15546370 Y=0.945630372 Z=0.763967812 W=-2.75922632}, {X=-0.258864820 Y=-0.358600229 Z=-0.405540705 W=0.282094985}, ...}	UE::Math::TVector4<float>[4]
++		CoordinateScale	{X=0.49609375000000000 Y=0.99218750000000000 XY=0x0000086a6f7f7020 {0.49609375000000000, 0.99218750000000000} }	UE::Math::TVector2<double>
++		CoordinateBias	{X=0.0019531250000000000 Y=0.0039062500000000000 XY=0x0000086a6f7f7030 {0.0019531250000000000, 0.0039062500000000000} }	UE::Math::TVector2<double>
++		InvUniformPenumbraSize	{X=0.00000000 Y=0.00000000 Z=0.00000000 W=1.00000000}	UE::Math::TVector4<float>
++		bShadowChannelValid	0x0000086a6f7f7050 {false, false, false, false}	bool[4]
+
+		- So the assignment is working.
+
+	Now to check the pointers in the next temp loop:
+
+	lightmap_at_0 = 0x000004990f262d00 {Textures=0x000004990f262d20 {0x0000049910b17000 (Name="HQ_Lightmap1"_1), 0x0000049910b17700 (Name="LQ_Lightmap_1"_1)} ...}
+	lightmap_at_i = 0x00000498a6469880 {Textures=0x00000498a64698a0 {{PackageName=??? }, 0x00000498b30a8ac0 (Name="/Script/Engine")} ...}
+	... so no, that didn't work
+
+
+
+
+
+
+
+
+
+
+

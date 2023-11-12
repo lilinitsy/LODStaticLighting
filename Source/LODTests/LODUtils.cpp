@@ -73,6 +73,9 @@ FMeshMapBuildData *get_mesh_build_data(UStaticMeshComponent *lod_object, int32_t
 	AActor *owner = lod_object->GetOwner();
 	FStaticMeshComponentLODInfo &lod_info = lod_object->LODData[lod_idx];
 
+	//UE_LOG(LogTemp, Log, TEXT("map built data ID: %d\n"), lod_info.MapBuildDataId);
+
+
 	if(owner)
 	{
 		ULevel *owner_level = owner->GetLevel();
@@ -80,6 +83,7 @@ FMeshMapBuildData *get_mesh_build_data(UStaticMeshComponent *lod_object, int32_t
 		if(owner_level && owner_level->OwningWorld)
 		{
 			ULevel *active_lighting_scenario = owner_level->OwningWorld->GetActiveLightingScenario();
+			UE_LOG(LogTemp, Log, TEXT("Active lighting scenario: %p\n"), active_lighting_scenario);
 			UMapBuildDataRegistry *map_build_data = nullptr;
 
 			if (active_lighting_scenario && active_lighting_scenario->MapBuildData)
@@ -116,6 +120,8 @@ void reset_lod_level_to_zero(UStaticMeshComponent *lod_object)
 	//int32_t num_lightmaps = component_instance_data_cast->CachedStaticLighting.Num();
 
 	FMeshMapBuildData *meshmap_build_data_at_0 = get_mesh_build_data(lod_object, 0);
+	FLightMap2D *lightmap_at_0 = (meshmap_build_data_at_0 && meshmap_build_data_at_0->LightMap) ?
+			meshmap_build_data_at_0->LightMap->GetLightMap2D() : nullptr;
 
 	int32_t num_lods = lod_object->LODData.Num();
 	UE_LOG(LogTemp, Log, TEXT("NUM LOD's: %d\n"), num_lods);
@@ -123,7 +129,43 @@ void reset_lod_level_to_zero(UStaticMeshComponent *lod_object)
 	for(int32_t i = 1; i < num_lods; i++)
 	{
 		FMeshMapBuildData *meshmap_build_data = get_mesh_build_data(lod_object, i);
+
+		if(meshmap_build_data && meshmap_build_data->LightMap)
+		{
+			meshmap_build_data->LightMap = lightmap_at_0;
+		}
+		//*lightmap_at_i = *lightmap_at_0;
+		FLightMap2D *lightmap_at_i = (meshmap_build_data && meshmap_build_data->LightMap) ?
+			meshmap_build_data->LightMap->GetLightMap2D() : nullptr;
+
 		meshmap_build_data = meshmap_build_data_at_0;
+		UE_LOG(LogTemp, Log, TEXT("First loop (lightmap_at_0, lightmap_at_%d: %p %p\n"), i, lightmap_at_0, lightmap_at_i);
+
+		/*if(lightmap_at_i != nullptr && lightmap_at_0 != nullptr)
+		{
+			*lightmap_at_i->Textures = *lightmap_at_0->Textures;
+			*lightmap_at_i->VirtualTextures = *lightmap_at_0->VirtualTextures;
+			*lightmap_at_i->ScaleVectors = *lightmap_at_0->ScaleVectors;
+			*lightmap_at_i->AddVectors = *lightmap_at_0->AddVectors;
+			lightmap_at_i->CoordinateScale = lightmap_at_0->CoordinateScale;
+			lightmap_at_i->CoordinateBias = lightmap_at_0->CoordinateBias;
+			lightmap_at_i->ShadowMapTexture = lightmap_at_0->ShadowMapTexture;
+		}*/
+
+
+	}
+
+
+	// Checking now
+	for(int32_t i = 1; i < num_lods; i++)
+	{
+		FMeshMapBuildData *meshmap_build_data = get_mesh_build_data(lod_object, i);
+		FLightMap2D *lightmap_at_i = (meshmap_build_data && meshmap_build_data->LightMap) ?
+			meshmap_build_data->LightMap->GetLightMap2D() : nullptr;
+		UE_LOG(LogTemp, Log, TEXT("Second loop (lightmap_at_0, lightmap_at_%d: %p %p\n"), i, lightmap_at_0, lightmap_at_i);
+
+		int x = 4;
+		//UE_LOG(LogTemp, Log, TEXT("x: %u\n"), x);
 	}
 
 	/*FStaticMeshComponentLODInfo &lod_info_at_0 = lod_object->LODData[0];
