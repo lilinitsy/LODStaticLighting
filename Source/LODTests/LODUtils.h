@@ -25,5 +25,7 @@ void reset_lod_level_to_zero(UStaticMeshComponent *lod_object);
 TArray<UStaticMesh*> get_static_mesh_actors(UWorld *world);
 
 TArray<UStaticMeshComponent*> get_static_mesh_components(UWorld *world);
+TArray<UStaticMeshComponent*> get_static_mesh_components_unique_lightmaps(UWorld *world);
+
 
 void take_screenshot(const FString modelname, const FString details, const int32_t lod_idx);

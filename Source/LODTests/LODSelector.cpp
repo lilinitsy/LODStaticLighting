@@ -23,16 +23,21 @@ void ALODSelector::BeginPlay()
 // Called every frame
 void ALODSelector::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
-	if(num_ticks % 120 == 0)
+	if(num_ticks == 300)
 	{
-		increment_lod(lod_object);
-		print_lod_info(lod_object);
+		relevant_static_mesh_components = get_static_mesh_components_unique_lightmaps(GetWorld());
+	}
 
-		if(TAKE_SCREENSHOTS)
+	if(relevant_static_mesh_components.Num() > 0 && num_ticks > 300 && num_ticks % 120 == 0)
+	{
+		for(UStaticMeshComponent *static_mesh_component : relevant_static_mesh_components)
 		{
-			take_screenshot(modelname, details, lod_object->GetRenderData()->CurrentFirstLODIdx);
+			increment_lod(static_mesh_component);
+			print_lod_info(static_mesh_component);
+			if(TAKE_SCREENSHOTS)
+			{
+				take_screenshot(modelname, details, static_mesh_component->ForcedLodModel - 1);
+			}
 		}
 	}
 

@@ -27,6 +27,8 @@ void increment_lod(UStaticMesh *lod_object)
 	static_mesh_render_data->CurrentFirstLODIdx = num_lods_available >= (int32_t) NUM_LODS ?
 		(static_mesh_render_data->CurrentFirstLODIdx + 1) % NUM_LODS :
 		(static_mesh_render_data->CurrentFirstLODIdx + 1) % num_lods_available;
+
+
 }
 
 void increment_lod(UStaticMeshComponent *lod_object)//, TStructOnScope<FActorComponentInstanceData> &component_instance_data)
@@ -196,7 +198,7 @@ TArray<UStaticMeshComponent*> get_static_mesh_components(UWorld *world)
 		{
 			FString actor_name = actor->GetActorLabel(false);
 
-			if(!actor_name.Contains(TEXT("Pawn")))
+			if(!actor_name.Contains(TEXT("Pawn")) && !actor_name.Contains(TEXT("UNIQUE")))
 			{
 				// Force all their static mesh components to be moveable
 				TArray<UStaticMeshComponent*> static_mesh_components; // there should only be 1, but this returns an array
@@ -220,6 +222,46 @@ TArray<UStaticMeshComponent*> get_static_mesh_components(UWorld *world)
 
 	return relevant_static_mesh_components;
 }
+
+
+TArray<UStaticMeshComponent*> get_static_mesh_components_unique_lightmaps(UWorld *world)
+{
+	TArray<UStaticMeshComponent*> relevant_static_mesh_components;
+	ULevel *level = world->GetLevel(0);
+	UE_LOG(LogTemp, Log, TEXT("Number of actors in this scene: %u\n"), level->Actors.Num());
+
+	for(AActor* actor : level->Actors)
+	{
+		// Without this check, it'll segfault... either some actors don't have names, or some are nullptr's? 
+		if(actor)
+		{
+			FString actor_name = actor->GetActorLabel(false);
+
+			if(!actor_name.Contains(TEXT("Pawn")) && actor_name.Contains(TEXT("UNIQUE")))
+			{
+				// Force all their static mesh components to be moveable
+				TArray<UStaticMeshComponent*> static_mesh_components; // there should only be 1, but this returns an array
+				actor->GetComponents<UStaticMeshComponent>(static_mesh_components);
+
+				// Check that there is a static mesh
+				for(UStaticMeshComponent *static_mesh_component : static_mesh_components)
+				{
+					// Add the first element only
+					relevant_static_mesh_components.Add(static_mesh_component);
+
+					FString outstr = actor->GetActorLabel(false);
+					UE_LOG(LogTemp, Log, TEXT("Actor name with static mesh: %s\n"), *outstr);
+
+				}
+			}
+
+		}
+	}
+
+	return relevant_static_mesh_components;
+}
+
+
 
 
 void take_screenshot(const FString modelname, const FString details, const int32_t lod_idx)

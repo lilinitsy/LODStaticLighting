@@ -22,15 +22,11 @@ class LODTESTS_API ALODSelector : public AActor
 	GENERATED_BODY()
 	
 public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Model")
-	UStaticMesh *lod_object;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	FString modelname;
 
+	TArray<UStaticMeshComponent*> relevant_static_mesh_components;
 	FString details = "uniquelightmaps";
-
 	size_t num_ticks = 0;
 
 	// Sets default values for this actor's properties

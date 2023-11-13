@@ -19,10 +19,7 @@ public:
 	FString modelname;
 
 	FString details = "LOD0lightmap";
-
 	TArray<UStaticMeshComponent*> relevant_static_mesh_components;
-	TArray<TStructOnScope<FActorComponentInstanceData>> relevant_static_mesh_components_instance_data;
-
 	size_t num_ticks = 0;
 
 
