@@ -39,12 +39,11 @@ void increment_lod(UStaticMeshComponent *lod_object)//, TStructOnScope<FActorCom
 	// UStaticMeshComponent::ForcedLodModel: If 0, auto-select LOD level. if > 0, force to (ForcedLodModel-1)
 	// so add 1 at the end
 	const int32_t forced_lod_model = lod_object->ForcedLodModel - 1;
-	int32_t forced_next_lod_model = ((forced_lod_model + 1) % NUM_LODS) + 1; 
-	int32_t next_lod_level = forced_next_lod_model - 1;
+	int32_t next_lod_model = ((forced_lod_model + 1) % NUM_LODS) + 1; 
 
-	lod_object->SetForcedLodModel(forced_next_lod_model);
+	lod_object->SetForcedLodModel(next_lod_model);
 
-	FMeshMapBuildData *meshmap_build_data = get_mesh_build_data(lod_object, next_lod_level);
+	FMeshMapBuildData *meshmap_build_data = get_mesh_build_data(lod_object, next_lod_model - 1);
 	FLightMap2D *lightmap = (meshmap_build_data && meshmap_build_data->LightMap) ?
 		meshmap_build_data->LightMap->GetLightMap2D() : nullptr;
 
@@ -52,12 +51,13 @@ void increment_lod(UStaticMeshComponent *lod_object)//, TStructOnScope<FActorCom
 	{
 		if(lightmap->Textures[0])
 		{
-			lightmap->Textures[0]->LODBias = next_lod_level;
+			lightmap->Textures[0]->LODBias = next_lod_model - 1;
+
 		}
 	
 		if(lightmap->Textures[1])
 		{
-			lightmap->Textures[1]->LODBias = next_lod_level;
+			lightmap->Textures[1]->LODBias = next_lod_model - 1;
 		}
 	}
 
