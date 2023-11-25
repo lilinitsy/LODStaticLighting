@@ -1,0 +1,25 @@
+FLightmap2D has a UTexture2D texture (and possibly shadowmap)
+
+Texture2D.h: class UTexture2D : public UTexture has const TIndirectArray<FTexture2DMipMap>& GetPlatformMips() const:
+	returns PrivatePlatformData->Mips; .... probably not worth digging further
+	Need to figure out how to get these mips and manually assign one.
+
+	---- could use StreamIn and StreamOut? nah... turn texture streaming off
+
+	There's this code in Texture2d.cpp::UpdateTexture:
+	int32 CurrentFirstMip = RegionData->Texture2DResource->State.AssetLODBias;
+	Texture2DResource is an FTexture2DResource*, the state is an FStreamableRenderResourceState, the type is AssetLODBias
+	This comes frmo an F Texture2DResource*, which is called from GetResource()->GetTexture2DResource()
+	GetResource() returns FTextureResource*, which has an FTexture2DResource* (but virtual, wtf dynamic cast methods)
+
+	---------------------------------------------------------------------------
+	ENGINE_API static float GetGlobalMipMapLODBias();
+		This calls some CVarSetMipMapLODBias console variable. Can maybe modify it.
+		Used like this:
+		float UTexture2D::GetGlobalMipMapLODBias()
+		{
+			float BiasOffset = CVarSetMipMapLODBias.GetValueOnAnyThread(); // called from multiple threads.
+			return FMath::Clamp(BiasOffset, -15.0f, 15.0f);
+		}
+		
+		Main issue is this does it for all 2D textures, so this isn't it....

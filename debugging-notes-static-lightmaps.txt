@@ -145,4 +145,39 @@ LogTemp: Second loop (lightmap_at_0, lightmap_at_3: 000006B70A1D7300 000006B70A1
 
 
 
-udtheeava_LOD0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

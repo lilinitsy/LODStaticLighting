@@ -7,6 +7,7 @@
 #include "StaticMeshComponentLODInfo.h"
 
 #include "Lightmap.h"
+#include "Rendering/Texture2DResource.h"
 #include "Engine/MapBuildDataRegistry.h"
 
 
@@ -29,6 +30,8 @@ void increment_lod(UStaticMesh *lod_object)
 		(static_mesh_render_data->CurrentFirstLODIdx + 1) % num_lods_available;
 
 
+
+
 }
 
 void increment_lod(UStaticMeshComponent *lod_object)//, TStructOnScope<FActorComponentInstanceData> &component_instance_data)
@@ -39,6 +42,27 @@ void increment_lod(UStaticMeshComponent *lod_object)//, TStructOnScope<FActorCom
 	int32_t next_lod_model = ((forced_lod_model + 1) % NUM_LODS) + 1; 
 
 	lod_object->SetForcedLodModel(next_lod_model);
+
+	FMeshMapBuildData *meshmap_build_data = get_mesh_build_data(lod_object, next_lod_model - 1);
+	FLightMap2D *lightmap = (meshmap_build_data && meshmap_build_data->LightMap) ?
+		meshmap_build_data->LightMap->GetLightMap2D() : nullptr;
+
+	if(lightmap)
+	{
+		if(lightmap->Textures[0])
+		{
+			lightmap->Textures[0]->LODBias = next_lod_model - 1;
+
+		}
+	
+		if(lightmap->Textures[1])
+		{
+			lightmap->Textures[1]->LODBias = next_lod_model - 1;
+		}
+	}
+
+
+
 }
 
 
@@ -198,7 +222,7 @@ TArray<UStaticMeshComponent*> get_static_mesh_components(UWorld *world)
 		{
 			FString actor_name = actor->GetActorLabel(false);
 
-			if(!actor_name.Contains(TEXT("Pawn")) && !actor_name.Contains(TEXT("UNIQUE")))
+			if(!actor_name.Contains(TEXT("Pawn")) && !actor_name.Contains(TEXT("UNIQUE")) && actor_name.Contains(TEXT("REUSE")))
 			{
 				// Force all their static mesh components to be moveable
 				TArray<UStaticMeshComponent*> static_mesh_components; // there should only be 1, but this returns an array

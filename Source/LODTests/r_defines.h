@@ -5,3 +5,5 @@
 const uint8_t NUM_LODS = 4;
 
 const bool TAKE_SCREENSHOTS = true;
+
+const bool MIPMAP_SHARED_LIGHTMAP = true;
