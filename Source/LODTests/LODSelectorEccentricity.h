@@ -10,9 +10,9 @@ UCLASS()
 class LODTESTS_API ALODSelectorEccentricity : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	TArray<UStaticMesh*> relevant_static_meshes;
+
+  public:
+	TArray<UStaticMesh *> relevant_static_meshes;
 	size_t num_ticks = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
@@ -25,7 +25,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-protected:
+  protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 };

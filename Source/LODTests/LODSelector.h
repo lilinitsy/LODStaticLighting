@@ -20,13 +20,13 @@ UCLASS()
 class LODTESTS_API ALODSelector : public AActor
 {
 	GENERATED_BODY()
-	
-public:
+
+  public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	FString modelname;
 
 	TArray<UStaticMeshComponent*> relevant_static_mesh_components;
-	FString details = "uniquelightmaps";
+	FString details  = "uniquelightmaps";
 	size_t num_ticks = 0;
 
 	// Sets default values for this actor's properties
@@ -35,8 +35,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-protected:
+  protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 };
