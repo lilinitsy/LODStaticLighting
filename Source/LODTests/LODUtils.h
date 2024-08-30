@@ -13,9 +13,12 @@ void increment_lod(UStaticMesh *lod_object);
 
 void print_lod_info(const UStaticMesh *lod_object);
 
-void increment_lod(UStaticMeshComponent *lod_object); //, TStructOnScope<FActorComponentInstanceData> &component_instance_data);
+// This is the non UFUNCTION version. Will have to copy paste this function into my experimental setups to use timer delegates, it seems
+void increment_lod(UStaticMeshComponent *lod_object, const bool share_lightmap); //, TStructOnScope<FActorComponentInstanceData> &component_instance_data);
 
 void print_lod_info(const UStaticMeshComponent *lod_object);
+
+void set_lod_level(UStaticMeshComponent* lod_object, uint32_t lodlvl, const bool share_lightmap);
 
 void reset_lod_level_to_zero(UStaticMesh *lod_object);
 

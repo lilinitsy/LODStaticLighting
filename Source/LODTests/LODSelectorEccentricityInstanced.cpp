@@ -30,7 +30,7 @@ void ALODSelectorEccentricityInstanced::Tick(float DeltaTime)
 	{
 		for(UStaticMeshComponent *static_mesh_component : relevant_static_mesh_components)
 		{
-			increment_lod(static_mesh_component);
+			increment_lod(static_mesh_component, true);
 			print_lod_info(static_mesh_component);
 			if(TAKE_SCREENSHOTS)
 			{
